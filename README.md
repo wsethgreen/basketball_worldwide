@@ -36,30 +36,26 @@ The linter and formatter run automatically during a commit via `pre-commit`. See
 You can optionally run the linter and formatter locally at any time.
 
 1. To run the linter against all python files:
-```bash
-uv run ruff check
-```
+    ```bash
+    uv run ruff check
+    ```
 2. To run the formatter against all python files:
-```bash
-uv run ruff format
-```
+    ```bash
+    uv run ruff format
+    ```
 
 
 #### Pre-commit
 
-We use [pre-commit](https://pre-commit.com/) to run the `ruff` linter and formatter on stages files on commits.
-
-Install `pre-commit` globally using `uvx`:
-```bash
-uvx install pre-commit
-```
+We use [pre-commit](https://pre-commit.com/) to run the `ruff` linter and formatter on stages files on commits. 
+Pre-commit is included as a dev dependency on this project.
 
 Set up `pre-commit` in this repo:
 1. Install hooks:
    ```bash
-   pre-commit install
+   uv run pre-commit install
    ```
 2. (Optional) Run against all files:
    ```bash
-   pre-commit run --all-files
+   uv run pre-commit run --all-files
    ```
