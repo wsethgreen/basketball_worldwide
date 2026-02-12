@@ -1,4 +1,4 @@
-from typing import Any, Sequence
+from typing import Sequence
 
 from sqlalchemy import select
 
@@ -30,8 +30,8 @@ class TeamRepo(BaseRepo):
         await self.session.refresh(team)
         return team
 
-    async def update(self, obj_id: Any, update: TeamUpdate) -> Team | None:
-        team = await self.get(obj_id)
+    async def update(self, team_id: int, update: TeamUpdate) -> Team | None:
+        team = await self.get(team_id)
         if team is None:
             return None
         data = self._normalize_input(update)
@@ -41,8 +41,8 @@ class TeamRepo(BaseRepo):
         await self.session.refresh(team)
         return team
 
-    async def delete(self, obj_id: Any) -> None:
-        team = await self.get(obj_id)
+    async def delete(self, team_id: int) -> None:
+        team = await self.get(team_id)
         if team is None:
             return None
         await self.session.delete(team)

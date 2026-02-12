@@ -1,9 +1,8 @@
 from __future__ import annotations
 
-from typing import Any, Sequence
+from typing import Sequence
 
 from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.db.schemas.league import League
 from src.models.league import LeagueCreate, LeagueUpdate
@@ -11,9 +10,6 @@ from src.repostories.base_repo import BaseRepo
 
 
 class LeagueRepo(BaseRepo):
-    def __init__(self, session: AsyncSession) -> None:
-        super().__init__(session)
-
     async def get(self, league_id: int) -> League | None:
         return await self.session.get(League, league_id)
 
@@ -47,7 +43,7 @@ class LeagueRepo(BaseRepo):
         await self.session.refresh(league)
         return league
 
-    async def delete(self, league_id: Any) -> None:
+    async def delete(self, league_id: int) -> None:
         league = await self.get(league_id)
         if league is None:
             return None

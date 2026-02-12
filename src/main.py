@@ -22,8 +22,8 @@ async def root():
     return {"message": "Basketball Worldwide!", "fake_name": faker.name_male()}
 
 
-app.include_router(v1)
 app.include_router(health_router)
+app.include_router(v1)
 
 
 if __name__ == "__main__":
