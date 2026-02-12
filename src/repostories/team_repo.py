@@ -1,0 +1,49 @@
+from typing import Any, Sequence
+
+from sqlalchemy import select
+
+from src.db.schemas.team import Team
+from src.models.team import TeamCreate, TeamUpdate
+from src.repostories.base_repo import BaseRepo
+
+
+class TeamRepo(BaseRepo):
+    async def get(self, team_id: int) -> Team | None:
+        return await self.session.get(Team, team_id)
+
+    async def list(
+        self, *, limit: int | None = None, offset: int | None = None
+    ) -> Sequence[Team]:
+        stmt = select(Team)
+        if offset is not None:
+            stmt = stmt.offset(offset)
+        if limit is not None:
+            stmt = stmt.limit(limit)
+        result = await self.session.execute(stmt)
+        return result.scalars().all()
+
+    async def create(self, new_team: TeamCreate) -> Team:
+        data = self._normalize_input(new_team)
+        team = Team(**data)
+        self.session.add(team)
+        await self.session.commit()
+        await self.session.refresh(team)
+        return team
+
+    async def update(self, obj_id: Any, update: TeamUpdate) -> Team | None:
+        team = await self.get(obj_id)
+        if team is None:
+            return None
+        data = self._normalize_input(update)
+        for field, value in data.items():
+            setattr(team, field, value)
+        await self.session.commit()
+        await self.session.refresh(team)
+        return team
+
+    async def delete(self, obj_id: Any) -> None:
+        team = await self.get(obj_id)
+        if team is None:
+            return None
+        await self.session.delete(team)
+        await self.session.commit()

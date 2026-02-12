@@ -1,10 +1,16 @@
+from typing import TYPE_CHECKING
+
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
 from src.db.schemas.base import Base
-from sqlalchemy.orm import Mapped
-from sqlalchemy.orm import mapped_column
+
+if TYPE_CHECKING:
+    from src.db.schemas.team import Team
 
 
 class League(Base):
-    __table_name__ = "leagues"
+    __tablename__ = "leagues"
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     name: Mapped[str]
+    teams: Mapped[list["Team"]] = relationship("Team", back_populates="league")
