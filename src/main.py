@@ -1,7 +1,7 @@
 import uvicorn
 
-from faker import Faker
 from fastapi import FastAPI, APIRouter
+from fastapi.responses import RedirectResponse
 
 from src.api.health import health_router
 from src.api.v1.league import league_router
@@ -17,9 +17,7 @@ v1.include_router(team_router)
 
 @app.get("/")
 async def root():
-    faker = Faker()
-
-    return {"message": "Basketball Worldwide!", "fake_name": faker.name_male()}
+    return RedirectResponse(url="/docs")
 
 
 app.include_router(health_router)
