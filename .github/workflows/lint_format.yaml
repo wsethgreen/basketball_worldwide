@@ -25,6 +25,6 @@ jobs:
 
       - name: Run Ruff Linter and Formatter Check
         run: |
-          # The --check flag makes the command fail if issues are found
+          # Running linter and formatter
           ruff check .
           ruff format . --check --diff
