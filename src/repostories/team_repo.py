@@ -2,7 +2,7 @@ from typing import Sequence
 
 from sqlalchemy import select
 
-from src.db.schemas.team import Team
+from src.db.models.team import Team
 from src.models.team import TeamCreate, TeamUpdate
 from src.repostories.base_repo import BaseRepo
 
