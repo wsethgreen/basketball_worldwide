@@ -4,7 +4,7 @@ from typing import Sequence
 
 from sqlalchemy import select
 
-from src.db.schemas.league import League
+from src.db.models.league import League
 from src.models.league import LeagueCreate, LeagueUpdate
 from src.repostories.base_repo import BaseRepo
 

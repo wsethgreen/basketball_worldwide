@@ -2,10 +2,10 @@ from typing import TYPE_CHECKING
 
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from src.db.schemas.base import Base
+from src.db.models.base import Base
 
 if TYPE_CHECKING:
-    from src.db.schemas.team import Team
+    from src.db.models.team import Team
 
 
 class League(Base):
