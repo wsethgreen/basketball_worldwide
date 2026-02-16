@@ -4,12 +4,17 @@ from sqlalchemy import select
 
 from src.db.models.team import Team
 from src.models.team import TeamCreate, TeamUpdate
-from src.repostories.base_repo import BaseRepo
+from src.repositories.base import BaseRepo
 
 
 class TeamRepo(BaseRepo):
     async def get(self, team_id: int) -> Team | None:
         return await self.session.get(Team, team_id)
+
+    async def get_teams_for_league(self, league_id: int) -> Sequence[Team]:
+        statement = select(Team).where(Team.league_id == league_id)
+        result = await self.session.execute(statement)
+        return result.scalars().all()
 
     async def list(
         self, *, limit: int | None = None, offset: int | None = None
@@ -23,7 +28,7 @@ class TeamRepo(BaseRepo):
         return result.scalars().all()
 
     async def create(self, new_team: TeamCreate) -> Team:
-        data = self._normalize_input(new_team)
+        data = new_team.model_dump()
         team = Team(**data)
         self.session.add(team)
         await self.session.commit()
@@ -34,7 +39,7 @@ class TeamRepo(BaseRepo):
         team = await self.get(team_id)
         if team is None:
             return None
-        data = self._normalize_input(update)
+        data = update.model_dump()
         for field, value in data.items():
             setattr(team, field, value)
         await self.session.commit()

@@ -6,7 +6,7 @@ from sqlalchemy import select
 
 from src.db.models.league import League
 from src.models.league import LeagueCreate, LeagueUpdate
-from src.repostories.base_repo import BaseRepo
+from src.repositories.base import BaseRepo
 
 
 class LeagueRepo(BaseRepo):
@@ -25,7 +25,7 @@ class LeagueRepo(BaseRepo):
         return result.scalars().all()
 
     async def create(self, new_league: LeagueCreate) -> League:
-        data = self._normalize_input(new_league)
+        data = new_league.model_dump()
         league = League(**data)
         self.session.add(league)
         await self.session.commit()
@@ -36,7 +36,7 @@ class LeagueRepo(BaseRepo):
         league = await self.get(league_id)
         if league is None:
             return None
-        data = self._normalize_input(update)
+        data = update.model_dump()
         for field, value in data.items():
             setattr(league, field, value)
         await self.session.commit()

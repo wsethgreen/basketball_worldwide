@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.db.session import get_async_session
 from src.models.league import LeagueCreate, LeagueRead, LeagueUpdate
-from src.repostories.league_repo import LeagueRepo
+from src.repositories.league import LeagueRepo
 
 league_router = APIRouter(prefix="/league", tags=["league"])
 

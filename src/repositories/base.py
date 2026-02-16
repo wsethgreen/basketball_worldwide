@@ -1,8 +1,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from pydantic import BaseModel
-from typing import Any, Sequence, Mapping
+from typing import Any, Sequence
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -10,14 +9,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 class BaseRepo(ABC):
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
-
-    @staticmethod
-    def _normalize_input(obj_in: BaseModel | Mapping) -> Mapping[str, Any]:
-        if isinstance(obj_in, BaseModel):
-            return obj_in.model_dump(exclude_unset=True)
-        if isinstance(obj_in, Mapping):
-            return obj_in
-        raise TypeError("obj_in must be a pydantic model or mapping")
 
     @abstractmethod
     async def get(self, obj_id: int | str) -> Any:
