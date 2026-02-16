@@ -1,5 +1,5 @@
 from typing import TYPE_CHECKING
-from uuid import UUID
+from uuid import UUID, uuid4
 
 from sqlalchemy import ForeignKey, String
 from sqlalchemy.dialects.postgresql import ARRAY, UUID as PG_UUID
@@ -15,10 +15,13 @@ if TYPE_CHECKING:
 class Player(Base):
     __tablename__ = "players"
 
-    id: Mapped[UUID] = mapped_column(PG_UUID(as_uuid=True), primary_key=True)
+    id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True), primary_key=True, default=uuid4
+    )
     first_name: Mapped[str]
     last_name: Mapped[str]
     age: Mapped[int]
+    height: Mapped[float]
     archetype: Mapped[str]
     positions: Mapped[list[str]] = mapped_column(ARRAY(String), default=list)
     team_id: Mapped[int] = mapped_column(

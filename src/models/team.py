@@ -21,6 +21,10 @@ class TeamCreate(BaseModel):
     league_id: int
 
 
+class TeamGenerateRoster(BaseModel):
+    generate_new: bool = False
+
+
 class TeamUpdate(BaseModel):
     city: str
     nickname: str

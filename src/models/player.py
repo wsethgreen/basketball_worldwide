@@ -18,14 +18,15 @@ class PlayerArchetype(StrEnum):
 
 class PlayerPosition(StrEnum):
     PG = "PG"
-    SG = "sg"
-    SF = "sf"
-    PF = "pf"
-    C = "c"
-    W = "w"
+    SG = "SG"
+    SF = "SF"
+    PF = "PF"
+    C = "C"
+    W = "W"
 
 
-class PlayerAttributes(BaseModel):
+class PlayerAttributesDto(BaseModel):
+    id: UUID
     player_id: UUID
     # physical
     speed: int
@@ -48,21 +49,22 @@ class PlayerAttributes(BaseModel):
     steal: int
     block: int
     # rebounding
-    off_rebound = int
-    def_rebound = int
+    off_rebound: int
+    def_rebound: int
     # mental
     iq: int
     clutch: int
 
 
 # TODO: determine final player model
-class PlayerCharacteristics(BaseModel):
+class PlayerDto(BaseModel):
     id: UUID
     first_name: str
     last_name: str
     age: int
+    height: float  # inches
     # dob: datetime  TODO: include date of birth? could be fun
-    attributes: PlayerAttributes
+    attributes: PlayerAttributesDto
     archetype: PlayerArchetype
     team_id: int
     positions: list[PlayerPosition]

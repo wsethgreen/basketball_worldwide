@@ -1,5 +1,5 @@
 from typing import TYPE_CHECKING
-from uuid import UUID
+from uuid import UUID, uuid4
 
 from sqlalchemy import ForeignKey
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
@@ -14,7 +14,9 @@ if TYPE_CHECKING:
 class PlayerAttributes(Base):
     __tablename__ = "player_attributes"
 
-    id: Mapped[UUID] = mapped_column(PG_UUID(as_uuid=True), primary_key=True)
+    id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True), primary_key=True, default=uuid4
+    )
     player_id: Mapped[UUID] = mapped_column(
         PG_UUID(as_uuid=True),
         ForeignKey("players.id", ondelete="CASCADE"),
@@ -34,7 +36,7 @@ class PlayerAttributes(Base):
     # skill
     ball_handling: Mapped[int]
     passing: Mapped[int]
-    off_ball_movement: Mapped[int]
+    # off_ball_movement: Mapped[int]
     # defense
     perimeter_defense: Mapped[int]
     interior_defense: Mapped[int]
