@@ -40,7 +40,7 @@ class GameSimulator:
     def _game_possessions(self) -> int:
         if self.possessions is not None:
             return self.possessions
-        return int(round((self.away_team.pace + self.home_team.pace) / 2))
+        return int(round(self.away_team.pace + self.home_team.pace))
 
     def _simulate_possession(self, team: TeamProfile) -> tuple[str, int]:
         if self.rng.random() < team.turnover_rate:

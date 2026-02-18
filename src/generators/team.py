@@ -7,8 +7,9 @@ from src.models.team import TeamProfile
 class TeamGenerator:
     @staticmethod
     def build_team_profile_from_roster(
-        team_name: str, roster: Sequence[PlayerDto]
+        city: str, nickname: str, roster: Sequence[PlayerDto]
     ) -> TeamProfile:
+        team_name = f"{city} {nickname}"
         if not roster:
             raise ValueError(f"{team_name} roster is empty")
 
