@@ -45,3 +45,8 @@ class TeamProfile:
     points_per_two: int = 2
     points_per_three: int = 3
     points_per_ft: int = 1
+
+
+class TeamProfiles(BaseModel):
+    away_team_profile: TeamProfile
+    home_team_profile: TeamProfile
