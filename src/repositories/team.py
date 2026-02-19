@@ -16,6 +16,13 @@ class TeamRepo(BaseRepo):
         result = await self.session.execute(statement)
         return result.scalars().all()
 
+    async def get_teams_by_ids(self, team_ids: Sequence[int]) -> Sequence[Team]:
+        if not team_ids:
+            return []
+        statement = select(Team).where(Team.id.in_(team_ids))
+        result = await self.session.execute(statement)
+        return result.scalars().all()
+
     async def list(
         self, *, limit: int | None = None, offset: int | None = None
     ) -> Sequence[Team]:

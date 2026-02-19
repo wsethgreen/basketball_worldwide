@@ -5,6 +5,7 @@ from fastapi.responses import RedirectResponse
 
 from src.api.health import health_router
 from src.api.v1.league import league_router
+from src.api.v1.simulate import simulate_router
 from src.api.v1.team import team_router
 
 
@@ -12,6 +13,7 @@ app = FastAPI()
 
 v1 = APIRouter(prefix="/v1")
 v1.include_router(league_router)
+v1.include_router(simulate_router)
 v1.include_router(team_router)
 
 
