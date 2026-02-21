@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 from pydantic import BaseModel, ConfigDict
 
+from src.models.player import PlayerDto
+
 
 class BaseTeam(BaseModel):
     id: int
@@ -48,5 +50,9 @@ class TeamProfile:
 
 
 class TeamProfiles(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
     away_team_profile: TeamProfile
     home_team_profile: TeamProfile
+    away_roster: list[PlayerDto]
+    home_roster: list[PlayerDto]

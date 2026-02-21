@@ -26,8 +26,13 @@ async def simulate_game(
         sim_service = SimService(
             away_team_profile=team_profiles.away_team_profile,
             home_team_profile=team_profiles.home_team_profile,
+            away_roster=team_profiles.away_roster,
+            home_roster=team_profiles.home_roster,
         )
-        result = await sim_service.sim_game()
+        if request.number_games == 1:
+            result = await sim_service.sim_game()
+        else:
+            result = await sim_service.sim_many(request.number_games)
 
         return result
     except Exception as e:
