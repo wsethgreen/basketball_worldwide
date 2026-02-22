@@ -1,14 +1,13 @@
-from __future__ import annotations
-
 import random
-from typing import Optional, Sequence, Any
+from typing import Optional, Sequence
 from uuid import UUID
 
+from src.models.enum import PossessionOutcome
 from src.models.game import (
     GameResult,
     PlayerGameStats,
     PossessionEvent,
-    PossessionOutcome,
+    PossessionResult,
 )
 from src.models.player import PlayerDto
 from src.models.team import TeamProfile
@@ -25,8 +24,8 @@ class GameSimulator:
         rng: random.Random | None = None,
     ) -> None:
         self.away_team = away_team
-        self.home_team = home_team
         self.away_roster = away_roster
+        self.home_team = home_team
         self.home_roster = home_roster
         self.possessions = possessions
         self.rng = rng or random.Random()
@@ -36,42 +35,82 @@ class GameSimulator:
             return self.possessions
 
         baseline = self.away_team.pace + self.home_team.pace
-        # Add small game-to-game variance (~ +/- 6%).
-        variance = self.rng.uniform(-0.06, 0.06)
+        variance = self.rng.uniform(
+            -0.06, 0.06
+        )  # Add small game-to-game variance (~ +/- 6%)
         total = int(round(baseline * (1 + variance)))
         return max(1, total)
 
-    def _simulate_possession(self, team: TeamProfile) -> PossessionOutcome:
+    def _determine_outcome(self, team: TeamProfile) -> PossessionOutcome:
         if self.rng.random() < team.turnover_rate:
-            return PossessionOutcome(outcome="turnover", points=0, turnover=True)
-
+            return PossessionOutcome.TURNOVER
         elif self.rng.random() < team.ft_rate:
+            return PossessionOutcome.FREE_THROWS
+        elif self.rng.random() < team.three_rate:
+            return PossessionOutcome.THREE_POINTER
+        else:
+            return PossessionOutcome.TWO_POINTER
+
+    def _simulate_possession(
+        self, team: TeamProfile, roster: Sequence[PlayerDto]
+    ) -> PossessionResult:
+        outcome = self._determine_outcome(team)
+        if outcome == PossessionOutcome.TURNOVER:
+            turnover_player = self._select_turnover_player(roster)
+            return PossessionResult(
+                outcome="turnover",
+                points=0,
+                turnover=True,
+                turnover_player_id=turnover_player.id,
+            )
+
+        elif outcome == PossessionOutcome.FREE_THROWS:
+            shooter = self._weighted_choice(
+                roster,
+                lambda p: (
+                    (p.attributes.inside_scoring * 0.6)
+                    + (p.attributes.ball_handling * 0.4)
+                ),
+            )
+            ft_pct = self._pct_from_attr(shooter.attributes.free_throw, 0.5, 0.9)
             made_fts = 0
             for _ in range(2):
-                if self.rng.random() < team.ft_pct:
+                if self.rng.random() < ft_pct:
                     made_fts += 1
-            return PossessionOutcome(
+            return PossessionResult(
                 outcome="free_throws",
                 points=made_fts * team.points_per_ft,
                 ft_attempts=2,
                 ft_made=made_fts,
+                shooter_id=shooter.id,
             )
 
-        elif self.rng.random() < team.three_rate:
-            made = self.rng.random() < team.three_pct
-            return PossessionOutcome(
+        elif outcome == PossessionOutcome.THREE_POINTER:
+            shooter = self._select_shooter(roster, "three")
+            three_pct = self._pct_from_attr(shooter.attributes.three_point, 0.25, 0.5)
+            made = self.rng.random() < three_pct
+            return PossessionResult(
                 outcome="three_made" if made else "three_miss",
                 points=team.points_per_three if made else 0,
                 shot_type="three",
                 shot_made=made,
+                shooter_id=shooter.id,
             )
         else:
-            made = self.rng.random() < team.two_pct
-            return PossessionOutcome(
+            shooter = self._select_shooter(roster, "two")
+            two_pct = self._pct_from_attr(
+                (shooter.attributes.inside_scoring * 0.6)
+                + (shooter.attributes.midrange_scoring * 0.4),
+                0.35,
+                0.7,
+            )
+            made = self.rng.random() < two_pct
+            return PossessionResult(
                 outcome="two_made" if made else "two_miss",
                 points=team.points_per_two if made else 0,
                 shot_type="two",
                 shot_made=made,
+                shooter_id=shooter.id,
             )
 
     @staticmethod
@@ -119,6 +158,11 @@ class GameSimulator:
             ),
         )
 
+    @staticmethod
+    def _pct_from_attr(value: float, min_pct: float, max_pct: float) -> float:
+        normalized = max(0.0, min(1.0, value / 100.0))
+        return min_pct + normalized * (max_pct - min_pct)
+
     def _select_assist_player(
         self, roster: Sequence[PlayerDto], shooter_id: UUID
     ) -> PlayerDto | None:
@@ -151,20 +195,21 @@ class GameSimulator:
 
     def _apply_possession_stats(
         self,
-        outcome: PossessionOutcome,
+        outcome: PossessionResult,
         roster: Sequence[PlayerDto],
         stats_map: dict[UUID, PlayerGameStats],
         opponent_roster: Sequence[PlayerDto],
         opponent_stats_map: dict[UUID, PlayerGameStats],
     ) -> None:
         if outcome.turnover:
-            turnover_player = self._select_turnover_player(roster)
-            stats_map[turnover_player.id].turnovers += 1
+            if outcome.turnover_player_id is not None:
+                stats_map[outcome.turnover_player_id].turnovers += 1
             return
 
         if outcome.ft_attempts:
-            shooter = self._weighted_choice(roster, lambda p: p.attributes.free_throw)
-            stats = stats_map[shooter.id]
+            if outcome.shooter_id is None:
+                return
+            stats = stats_map[outcome.shooter_id]
             stats.ft_attempted += outcome.ft_attempts
             stats.ft_made += outcome.ft_made
             stats.points += outcome.points
@@ -173,8 +218,9 @@ class GameSimulator:
         if outcome.shot_type is None:
             return
 
-        shooter = self._select_shooter(roster, outcome.shot_type)
-        stats = stats_map[shooter.id]
+        if outcome.shooter_id is None:
+            return
+        stats = stats_map[outcome.shooter_id]
         stats.fg_attempted += 1
         if outcome.shot_made:
             stats.fg_made += 1
@@ -186,7 +232,7 @@ class GameSimulator:
 
         if outcome.shot_made:
             if self.rng.random() < 0.5:
-                assister = self._select_assist_player(roster, shooter.id)
+                assister = self._select_assist_player(roster, outcome.shooter_id)
                 if assister is not None:
                     stats_map[assister.id].assists += 1
             return
@@ -217,33 +263,30 @@ class GameSimulator:
 
         for possession in range(total_possessions):
             team = self.away_team if possession % 2 == 0 else self.home_team
-            outcome = self._simulate_possession(team)
+            roster = self.away_roster if team is self.away_team else self.home_roster
+            outcome = self._simulate_possession(team, roster)
             if team is self.away_team:
                 away_score += outcome.points
             else:
                 home_score += outcome.points
-            if (
-                away_stats_map is not None
-                and home_stats_map is not None
-                and self.away_roster is not None
-                and self.home_roster is not None
-            ):
-                if team is self.away_team:
-                    self._apply_possession_stats(
-                        outcome,
-                        roster=self.away_roster,
-                        stats_map=away_stats_map,
-                        opponent_roster=self.home_roster,
-                        opponent_stats_map=home_stats_map,
-                    )
-                else:
-                    self._apply_possession_stats(
-                        outcome,
-                        roster=self.home_roster,
-                        stats_map=home_stats_map,
-                        opponent_roster=self.away_roster,
-                        opponent_stats_map=away_stats_map,
-                    )
+
+            if team is self.away_team:
+                self._apply_possession_stats(
+                    outcome,
+                    roster=self.away_roster,
+                    stats_map=away_stats_map,
+                    opponent_roster=self.home_roster,
+                    opponent_stats_map=home_stats_map,
+                )
+            else:
+                self._apply_possession_stats(
+                    outcome,
+                    roster=self.home_roster,
+                    stats_map=home_stats_map,
+                    opponent_roster=self.away_roster,
+                    opponent_stats_map=away_stats_map,
+                )
+
             if possessions_log is not None:
                 possessions_log.append(
                     PossessionEvent(
@@ -254,13 +297,11 @@ class GameSimulator:
                     )
                 )
 
-        winner: Optional[str]
+        winner: Optional[str] = None
         if away_score > home_score:
             winner = self.away_team.name
         elif home_score > away_score:
             winner = self.home_team.name
-        else:
-            winner = None
 
         return GameResult(
             away_team=self.away_team,
@@ -270,40 +311,6 @@ class GameSimulator:
             home_score=home_score,
             winner=winner,
             possessions_log=possessions_log,
-            away_player_stats=(
-                [away_stats_map[p.id] for p in self.away_roster]
-                if away_stats_map is not None and self.away_roster is not None
-                else None
-            ),
-            home_player_stats=(
-                [home_stats_map[p.id] for p in self.home_roster]
-                if home_stats_map is not None and self.home_roster is not None
-                else None
-            ),
+            away_player_stats=[away_stats_map[p.id] for p in self.away_roster],
+            home_player_stats=[home_stats_map[p.id] for p in self.home_roster],
         )
-
-    def simulate_many(self, games: int) -> dict[str, Any]:
-        if games <= 0:
-            raise ValueError("games must be positive")
-
-        wins_a = 0
-        wins_b = 0
-        ties = 0
-        results: list[GameResult] = []
-
-        for _ in range(games):
-            result = self.simulate_game()
-            results.append(result)
-            if result.winner == self.away_team.name:
-                wins_a += 1
-            elif result.winner == self.home_team.name:
-                wins_b += 1
-            else:
-                ties += 1
-
-        return {
-            "results": [results],
-            self.away_team.name: wins_a / games,
-            self.home_team.name: wins_b / games,
-            "tie": ties / games,
-        }

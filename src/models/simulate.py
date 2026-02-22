@@ -6,7 +6,6 @@ from src.models.game import PlayerGameStats
 class SimulateGameRequest(BaseModel):
     away_team_id: int
     home_team_id: int
-    number_games: int = 1
 
 
 class SimulateGameResponse(BaseModel):

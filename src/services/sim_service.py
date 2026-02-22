@@ -36,7 +36,3 @@ class SimService:
             away_player_stats=result.away_player_stats or [],
             home_player_stats=result.home_player_stats or [],
         )
-
-    async def sim_many(self, number_game: int) -> dict:
-        result = self.game_simulator.simulate_many(number_game)
-        return result

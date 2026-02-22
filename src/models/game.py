@@ -13,7 +13,7 @@ class PossessionEvent:
 
 
 @dataclass(frozen=True)
-class PossessionOutcome:
+class PossessionResult:
     outcome: str
     points: int
     shot_type: str | None = None
@@ -21,6 +21,8 @@ class PossessionOutcome:
     ft_attempts: int = 0
     ft_made: int = 0
     turnover: bool = False
+    shooter_id: UUID | None = None
+    turnover_player_id: UUID | None = None
 
 
 @dataclass

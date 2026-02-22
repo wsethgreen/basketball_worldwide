@@ -3,7 +3,7 @@ from src.db.models.league import League
 from src.db.models.team import Team
 from src.db.models.player import Player
 from src.db.models.player_attributes import PlayerAttributes
-from src.db.models.game_stats import GameStats
+from src.db.models.player_game_stats import PlayerGameStats
 
 
 __all__ = [
@@ -12,5 +12,5 @@ __all__ = [
     "Team",
     "Player",
     "PlayerAttributes",
-    "GameStats",
+    "PlayerGameStats",
 ]

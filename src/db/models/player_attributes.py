@@ -22,6 +22,7 @@ class PlayerAttributes(Base):
         ForeignKey("players.id", ondelete="CASCADE"),
         index=True,
     )
+    # overall: Mapped[int]
     # physical
     speed: Mapped[int]
     agility: Mapped[int]
