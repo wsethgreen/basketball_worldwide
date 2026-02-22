@@ -52,7 +52,10 @@ class TeamService:
         )
 
         return TeamProfiles(
-            away_team_profile=away_team_profile, home_team_profile=home_team_profile
+            away_team_profile=away_team_profile,
+            home_team_profile=home_team_profile,
+            away_roster=away_roster,
+            home_roster=home_roster,
         )
 
     async def get_roster(self, team_id: int) -> list[PlayerDto]:

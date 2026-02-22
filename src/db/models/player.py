@@ -8,7 +8,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from src.db.models.base import Base
 
 if TYPE_CHECKING:
-    from src.db.models.game_stats import GameStats
+    from src.db.models.player_game_stats import PlayerGameStats
     from src.db.models.player_attributes import PlayerAttributes
 
 
@@ -23,6 +23,7 @@ class Player(Base):
     age: Mapped[int]
     height: Mapped[float]
     archetype: Mapped[str]
+    # caliber: Mapped[str]
     positions: Mapped[list[str]] = mapped_column(ARRAY(String), default=list)
     team_id: Mapped[int] = mapped_column(
         ForeignKey("teams.id"), index=True, nullable=False
@@ -33,8 +34,8 @@ class Player(Base):
         back_populates="player",
         uselist=False,
     )
-    game_stats: Mapped[list["GameStats"]] = relationship(
-        "GameStats",
+    game_stats: Mapped[list["PlayerGameStats"]] = relationship(
+        "PlayerGameStats",
         back_populates="player",
         cascade="all, delete-orphan",
     )

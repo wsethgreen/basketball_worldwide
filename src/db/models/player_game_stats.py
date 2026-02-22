@@ -11,8 +11,8 @@ if TYPE_CHECKING:
     from src.db.models.player import Player
 
 
-class GameStats(Base):
-    __tablename__ = "game_stats"
+class PlayerGameStats(Base):
+    __tablename__ = "player_game_stats"
 
     id: Mapped[UUID] = mapped_column(
         PG_UUID(as_uuid=True), primary_key=True, default=uuid4
@@ -28,12 +28,13 @@ class GameStats(Base):
     points: Mapped[int]
     fg_attempted: Mapped[int]
     fg_made: Mapped[int]
+    fg_percent: Mapped[float]
     three_point_attempted: Mapped[int]
     three_point_made: Mapped[int]
+    three_point_percent: Mapped[float]
     ft_attempted: Mapped[int]
     ft_made: Mapped[int]
-    fg_percent: Mapped[float]
-    three_point_percent: Mapped[float]
+    ft_percent: Mapped[float]
     off_rebounds: Mapped[int]
     def_rebounds: Mapped[int]
     rebounds: Mapped[int]
