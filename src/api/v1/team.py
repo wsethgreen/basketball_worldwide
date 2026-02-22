@@ -77,10 +77,10 @@ async def create_team(
 
     # TODO: Add TeamService to handle business logic
     new_team = TeamCreate(
-        league_id=team_in.league_id,
         city=faker.city(),
         nickname=random.choice(NICKNAMES),
         budget=random.randint(50, 125) * 1_000_000,
+        division_id=team_in.division_id,
     )
 
     repo = TeamRepo(session)

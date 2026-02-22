@@ -5,7 +5,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from src.db.models.base import Base
 
 if TYPE_CHECKING:
-    from src.db.models.team import Team
+    from src.db.models.conference import Conference
 
 
 class League(Base):
@@ -13,4 +13,6 @@ class League(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     name: Mapped[str]
-    teams: Mapped[list["Team"]] = relationship("Team", back_populates="league")
+    conferences: Mapped[list["Conference"]] = relationship(
+        "Conference", back_populates="league"
+    )

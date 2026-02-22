@@ -2,6 +2,7 @@ from typing import Sequence
 
 from sqlalchemy import select
 
+from src.db.models.division import Division
 from src.db.models.team import Team
 from src.models.team import TeamCreate, TeamUpdate
 from src.repositories.base import BaseRepo
@@ -12,7 +13,17 @@ class TeamRepo(BaseRepo):
         return await self.session.get(Team, team_id)
 
     async def get_teams_for_league(self, league_id: int) -> Sequence[Team]:
-        statement = select(Team).where(Team.league_id == league_id)
+        statement = (
+            select(Team)
+            .join(Division, Team.division_id == Division.id)
+            .join(Division.conference)
+            .where(Division.conference.has(league_id=league_id))
+        )
+        result = await self.session.execute(statement)
+        return result.scalars().all()
+
+    async def get_teams_for_division(self, division_id: int) -> Sequence[Team]:
+        statement = select(Team).where(Team.division_id == division_id)
         result = await self.session.execute(statement)
         return result.scalars().all()
 
