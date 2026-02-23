@@ -1,22 +1,32 @@
-from __future__ import annotations
-
 from typing import Sequence
 
 from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 
 from src.db.models.league import League
+from src.db.models.conference import Conference
 from src.models.league import LeagueCreate, LeagueUpdate
 from src.repositories.base import BaseRepo
 
 
 class LeagueRepo(BaseRepo):
     async def get(self, league_id: int) -> League | None:
-        return await self.session.get(League, league_id)
+        stmt = (
+            select(League)
+            .where(League.id == league_id)
+            .options(
+                selectinload(League.conferences).selectinload(Conference.divisions)
+            )
+        )
+        result = await self.session.execute(stmt)
+        return result.scalars().first()
 
     async def list(
         self, *, limit: int | None = None, offset: int | None = None
     ) -> Sequence[League]:
-        stmt = select(League)
+        stmt = select(League).options(
+            selectinload(League.conferences).selectinload(Conference.divisions)
+        )
         if offset is not None:
             stmt = stmt.offset(offset)
         if limit is not None:

@@ -9,7 +9,7 @@ class BaseTeam(BaseModel):
     city: str
     nickname: str
     budget: int | None
-    league_id: int
+    division_id: int
 
 
 class TeamRead(BaseTeam):
@@ -17,11 +17,10 @@ class TeamRead(BaseTeam):
 
 
 class TeamCreate(BaseModel):
-    league_id: int
     city: str
     nickname: str
     budget: int | None
-    league_id: int
+    division_id: int
 
 
 class TeamGenerateRoster(BaseModel):
@@ -32,6 +31,7 @@ class TeamUpdate(BaseModel):
     city: str
     nickname: str
     budget: int | None
+    division_id: int
 
 
 @dataclass(frozen=True)

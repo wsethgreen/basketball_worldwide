@@ -1,9 +1,14 @@
+from typing import TYPE_CHECKING
+
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
 from sqlalchemy.orm import relationship
 
 from src.db.models.base import Base
+
+if TYPE_CHECKING:
+    from src.db.models.division import Division
 
 
 class Team(Base):
@@ -13,8 +18,8 @@ class Team(Base):
     city: Mapped[str]
     nickname: Mapped[str]
     budget: Mapped[int | None] = mapped_column()
-    league_id: Mapped[int] = mapped_column(
-        ForeignKey("leagues.id"), index=True, nullable=False
+    division_id: Mapped[int] = mapped_column(
+        ForeignKey("divisions.id"), index=True, nullable=False
     )
 
-    league = relationship("League", back_populates="teams")
+    division: Mapped["Division"] = relationship("Division", back_populates="teams")
