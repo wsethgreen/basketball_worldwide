@@ -1,10 +1,15 @@
+import random
+
+from faker import Faker
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.generators.team import TeamGenerator
 from src.models.player import PlayerDto
-from src.models.team import TeamProfiles
+from src.models.team import TeamCreate, TeamProfiles
+from src.repositories.division import DivisionRepo
 from src.repositories.player import PlayerRepo
+from src.repositories.scheduled_game import ScheduledGameRepo
 from src.repositories.team import TeamRepo
 
 
@@ -13,6 +18,9 @@ class TeamService:
         self.player_repo = PlayerRepo(session=session)
         self.team_repo = TeamRepo(session=session)
         self.team_generator = TeamGenerator()
+        self.division_repo = DivisionRepo(session=session)
+        self.scheduled_game_repo = ScheduledGameRepo(session=session)
+        self._faker = Faker()
 
     async def get_team_profiles(
         self, away_team_id: int, home_team_id: int
@@ -58,6 +66,35 @@ class TeamService:
             home_roster=home_roster,
         )
 
+    async def create_team(self, team_in: TeamCreate):
+        division = await self.division_repo.get(team_in.division_id)
+        if division is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Division with id {team_in.division_id} not found",
+            )
+        nicknames = [
+            "Lions",
+            "Wolves",
+            "Eagles",
+            "Hawks",
+            "Bulls",
+            "Tigers",
+            "Falcons",
+            "Sharks",
+            "Raptors",
+            "Panthers",
+            "Kings",
+            "Storm",
+        ]
+        new_team = TeamCreate(
+            city=self._faker.city(),
+            nickname=random.choice(nicknames),
+            budget=random.randint(50, 125) * 1_000_000,
+            division_id=team_in.division_id,
+        )
+        return await self.team_repo.create(new_team)
+
     async def get_roster(self, team_id: int) -> list[PlayerDto]:
         players = await self.player_repo.get_players_for_team(team_id=team_id)
 
@@ -69,3 +106,8 @@ class TeamService:
         return [
             PlayerDto.model_validate(player, from_attributes=True) for player in players
         ]
+
+    async def get_schedule(self, team_id: int, season_year: int | None = None):
+        return await self.scheduled_game_repo.get_for_team(
+            team_id=team_id, season_year=season_year
+        )
