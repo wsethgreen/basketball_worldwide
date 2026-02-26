@@ -19,3 +19,17 @@ class SimulateGameResponse(BaseModel):
     possessions: int
     away_player_stats: list[PlayerGameStats]
     home_player_stats: list[PlayerGameStats]
+
+
+class SimulateScheduleRequest(BaseModel):
+    season_year: int
+
+
+class SimulateScheduleResponse(BaseModel):
+    season_year: int
+    games_created: int
+
+
+class SimulateScheduleDeleteResponse(BaseModel):
+    season_year: int
+    games_deleted: int

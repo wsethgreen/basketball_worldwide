@@ -6,6 +6,7 @@ from src.db.models.team import Team
 from src.db.models.player import Player
 from src.db.models.player_attributes import PlayerAttributes
 from src.db.models.player_game_stats import PlayerGameStats
+from src.db.models.scheduled_game import ScheduledGame
 
 
 __all__ = [
@@ -17,4 +18,5 @@ __all__ = [
     "Player",
     "PlayerAttributes",
     "PlayerGameStats",
+    "ScheduledGame",
 ]
