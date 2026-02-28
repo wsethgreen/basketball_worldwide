@@ -1,6 +1,3 @@
-import random
-
-from faker import Faker
 from loguru import logger
 from typing import Sequence
 
@@ -11,7 +8,9 @@ from src.constants import ROSTER_SIZE
 from src.db.session import get_async_session
 from src.models.player import PlayerDto
 from src.models.team import TeamCreate, TeamRead, TeamUpdate, TeamGenerateRoster
+from src.repositories.scheduled_game import ScheduledGameRepo
 from src.repositories.team import TeamRepo
+from src.services.team import TeamService
 from src.services.player import PlayerService
 
 team_router = APIRouter(prefix="/team", tags=["team"])
@@ -53,38 +52,24 @@ async def get_team_roster(
     return {"roster": roster}
 
 
+@team_router.get("/{team_id}/schedule")
+async def get_team_schedule(
+    team_id: int,
+    season_year: int | None = None,
+    session: AsyncSession = Depends(get_async_session),
+):
+    schedule_repo = ScheduledGameRepo(session=session)
+    games = await schedule_repo.get_for_team(team_id=team_id, season_year=season_year)
+    return {"games": games}
+
+
 @team_router.post("", response_model=TeamRead, status_code=status.HTTP_201_CREATED)
 async def create_team(
     team_in: TeamCreate,
     session: AsyncSession = Depends(get_async_session),
 ):
-    faker = Faker()
-    # Needs improved badly
-    NICKNAMES = [
-        "Lions",
-        "Wolves",
-        "Eagles",
-        "Hawks",
-        "Bulls",
-        "Tigers",
-        "Falcons",
-        "Sharks",
-        "Raptors",
-        "Panthers",
-        "Kings",
-        "Storm",
-    ]
-
-    # TODO: Add TeamService to handle business logic
-    new_team = TeamCreate(
-        city=faker.city(),
-        nickname=random.choice(NICKNAMES),
-        budget=random.randint(50, 125) * 1_000_000,
-        division_id=team_in.division_id,
-    )
-
-    repo = TeamRepo(session)
-    return await repo.create(new_team)
+    team_service = TeamService(session=session)
+    return await team_service.create_team(team_in)
 
 
 @team_router.put("/{team_id}", response_model=TeamRead)
