@@ -1,4 +1,5 @@
 from datetime import date
+from uuid import UUID
 from enum import StrEnum
 
 from pydantic import BaseModel, ConfigDict
@@ -19,7 +20,7 @@ class BaseScheduledGame(BaseModel):
 
 class ScheduleGameRead(BaseScheduledGame):
     model_config = ConfigDict(from_attributes=True)
-    id: int
+    id: UUID
 
 
 class ScheduledGameCreate(BaseScheduledGame):

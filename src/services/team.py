@@ -6,10 +6,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.generators.team import TeamGenerator
 from src.models.player import PlayerDto
-from src.models.team import TeamCreate, TeamProfiles
+from src.models.team import TeamCreate, TeamGameStatsDto, TeamProfiles
 from src.repositories.division import DivisionRepo
 from src.repositories.player import PlayerRepo
+from src.repositories.team_game_stats import TeamGameStatsRepo
 from src.repositories.scheduled_game import ScheduledGameRepo
+from src.repositories.team_record import TeamRecordRepo
 from src.repositories.team import TeamRepo
 
 
@@ -20,6 +22,8 @@ class TeamService:
         self.team_generator = TeamGenerator()
         self.division_repo = DivisionRepo(session=session)
         self.scheduled_game_repo = ScheduledGameRepo(session=session)
+        self.team_game_stats_repo = TeamGameStatsRepo(session=session)
+        self.team_record_repo = TeamRecordRepo(session=session)
         self._faker = Faker()
 
     async def get_team_profiles(
@@ -111,3 +115,13 @@ class TeamService:
         return await self.scheduled_game_repo.get_for_team(
             team_id=team_id, season_year=season_year
         )
+
+    async def create_game_stats(self, stats: TeamGameStatsDto):
+        return await self.team_game_stats_repo.create(stats)
+
+    async def record_result(self, team_id: int, won: bool, year: int):
+        team = await self.team_record_repo.get_for_team(team_id=team_id)
+        if not team:
+            new_team = await self.team_record_repo.create(team_id=team_id, year=year)
+            await self.team_record_repo.update_by_team_id(new_team.team_id, won)
+        return await self.team_record_repo.update_by_team_id(team_id, won)

@@ -1,4 +1,6 @@
 from dataclasses import dataclass
+from uuid import UUID
+
 from pydantic import BaseModel, ConfigDict
 
 from src.models.player import PlayerDto
@@ -56,3 +58,27 @@ class TeamProfiles(BaseModel):
     home_team_profile: TeamProfile
     away_roster: list[PlayerDto]
     home_roster: list[PlayerDto]
+
+
+class TeamGameStatsDto(BaseModel):
+    id: UUID | None = None
+    team_id: int
+    game_id: UUID
+    season_year: int
+    points: int = 0
+    fg_attempted: int = 0
+    fg_made: int = 0
+    three_point_attempted: int = 0
+    three_point_made: int = 0
+    ft_attempted: int = 0
+    ft_made: int = 0
+    off_rebounds: int = 0
+    def_rebounds: int = 0
+    rebounds: int = 0
+    assists: int = 0
+    turnovers: int = 0
+    steals: int = 0
+    blocks: int = 0
+    personal_fouls: int = 0
+    technical_fouls: int = 0
+    plus_minus: int = 0
