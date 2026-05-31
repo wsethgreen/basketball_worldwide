@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.db.session import get_async_session
+from src.models.player_character import PlayerCharacterRead
 from src.models.user import UserBootstrap, UserCreate, UserRead, UserUpdate
 from src.repositories.user import UserRepo
 from src.services.user import UserService
@@ -39,6 +40,18 @@ async def bootstrap_user(
 ):
     service = UserService(session=session)
     return await service.bootstrap_user(user_in)
+
+
+@user_router.get(
+    "/{user_id}/characters",
+    response_model=Sequence[PlayerCharacterRead],
+)
+async def get_user_characters(
+    user_id: UUID,
+    session: AsyncSession = Depends(get_async_session),
+):
+    service = UserService(session=session)
+    return await service.get_user_characters(user_id)
 
 
 @user_router.get("/{user_id}", response_model=UserRead)

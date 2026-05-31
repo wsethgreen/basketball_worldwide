@@ -17,6 +17,11 @@ class PlayerCharacterRepo(BaseRepo):
         result = await self.session.execute(statement)
         return result.scalar_one_or_none()
 
+    async def get_by_user_id(self, user_id: UUID | str) -> Sequence[PlayerCharacter]:
+        statement = select(PlayerCharacter).where(PlayerCharacter.user_id == user_id)
+        result = await self.session.execute(statement)
+        return result.scalars().all()
+
     async def list(
         self, *, limit: int | None = None, offset: int | None = None
     ) -> Sequence[PlayerCharacter]:

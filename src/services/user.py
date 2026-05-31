@@ -5,11 +5,13 @@ from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.models.user import UserBootstrap, UserCreate, UserUpdate
+from src.repositories.player_character import PlayerCharacterRepo
 from src.repositories.user import UserRepo
 
 
 class UserService:
     def __init__(self, session: AsyncSession):
+        self.player_character_repo = PlayerCharacterRepo(session=session)
         self.user_repo = UserRepo(session=session)
 
     async def create_user(self, user_in: UserCreate):
@@ -39,6 +41,10 @@ class UserService:
                 detail="User not found",
             )
         return user
+
+    async def get_user_characters(self, user_id: UUID):
+        await self.get_user(user_id)
+        return await self.player_character_repo.get_by_user_id(user_id)
 
     async def bootstrap_user(self, user_in: UserBootstrap):
         now = datetime.now(timezone.utc)
