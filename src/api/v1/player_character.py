@@ -14,8 +14,8 @@ from src.repositories.player_character import PlayerCharacterRepo
 from src.services.player_character import PlayerCharacterService
 
 player_character_router = APIRouter(
-    prefix="/player-characters",
-    tags=["player-characters"],
+    prefix="/player_characters",
+    tags=["player_characters"],
 )
 
 
