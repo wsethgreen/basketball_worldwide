@@ -1,3 +1,5 @@
+from datetime import date
+
 from pydantic import BaseModel, ConfigDict
 
 from src.models.game import PlayerGameStats
@@ -33,3 +35,12 @@ class SimulateScheduleResponse(BaseModel):
 class SimulateScheduleDeleteResponse(BaseModel):
     season_year: int
     games_deleted: int
+
+
+class SimulateDayRequest(BaseModel):
+    game_date: date
+
+
+class SimulateDayResponse(BaseModel):
+    game_date: date
+    games_simulated: int

@@ -1,15 +1,19 @@
 from datetime import date
+from uuid import UUID, uuid4
 
 from sqlalchemy import ForeignKey, String
+from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.db.models.base import Base
 
 
-class ScheduledGame(Base):
+class ScheduledGames(Base):
     __tablename__ = "scheduled_games"
 
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True), primary_key=True, default=uuid4
+    )
     season_year: Mapped[int]
     game_date: Mapped[date | None] = mapped_column(
         default=None
