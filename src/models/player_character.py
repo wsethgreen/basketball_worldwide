@@ -12,6 +12,7 @@ class BasePlayerCharacter(BaseModel):
     play_style: str | None = None
     reputation: int = 50
     team_id: int | None = None
+    user_id: UUID | None = None
 
 
 class PlayerCharacterRead(BasePlayerCharacter):
@@ -32,3 +33,4 @@ class PlayerCharacterUpdate(BaseModel):
     play_style: str | None = None
     reputation: int | None = None
     team_id: int | None = None
+    user_id: UUID | None = None

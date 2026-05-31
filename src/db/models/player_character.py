@@ -10,6 +10,7 @@ from src.db.models.base import Base
 
 if TYPE_CHECKING:
     from src.db.models.team import Team
+    from src.db.models.user import User
 
 
 class PlayerCharacter(Base):
@@ -33,8 +34,15 @@ class PlayerCharacter(Base):
     team_id: Mapped[int | None] = mapped_column(
         ForeignKey("teams.id"), index=True, nullable=True, unique=True
     )
+    user_id: Mapped[UUID | None] = mapped_column(
+        ForeignKey("users.id"), index=True, nullable=True
+    )
 
     team: Mapped["Team | None"] = relationship(
         "Team",
         back_populates="player_character",
+    )
+    user: Mapped["User | None"] = relationship(
+        "User",
+        back_populates="player_characters",
     )

@@ -10,6 +10,7 @@ from src.db.models.player_game_stats import PlayerGameStats
 from src.db.models.scheduled_games import ScheduledGames
 from src.db.models.team_game_stats import TeamGameStats
 from src.db.models.team_record import TeamRecord
+from src.db.models.user import User
 
 
 __all__ = [
@@ -25,4 +26,5 @@ __all__ = [
     "ScheduledGames",
     "TeamGameStats",
     "TeamRecord",
+    "User",
 ]

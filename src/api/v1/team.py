@@ -13,7 +13,7 @@ from src.repositories.team import TeamRepo
 from src.services.team import TeamService
 from src.services.player import PlayerService
 
-team_router = APIRouter(prefix="/team", tags=["team"])
+team_router = APIRouter(prefix="/teams", tags=["team"])
 
 
 @team_router.get("", response_model=Sequence[TeamRead])
