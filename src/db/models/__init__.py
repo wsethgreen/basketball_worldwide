@@ -5,10 +5,12 @@ from src.db.models.league import League
 from src.db.models.team import Team
 from src.db.models.player import Player
 from src.db.models.player_attributes import PlayerAttributes
+from src.db.models.player_character import PlayerCharacter
 from src.db.models.player_game_stats import PlayerGameStats
 from src.db.models.scheduled_games import ScheduledGames
 from src.db.models.team_game_stats import TeamGameStats
 from src.db.models.team_record import TeamRecord
+from src.db.models.user import User
 
 
 __all__ = [
@@ -19,8 +21,10 @@ __all__ = [
     "Team",
     "Player",
     "PlayerAttributes",
+    "PlayerCharacter",
     "PlayerGameStats",
     "ScheduledGames",
     "TeamGameStats",
     "TeamRecord",
+    "User",
 ]
