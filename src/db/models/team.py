@@ -9,6 +9,7 @@ from src.db.models.base import Base
 
 if TYPE_CHECKING:
     from src.db.models.division import Division
+    from src.db.models.player_character import PlayerCharacter
 
 
 class Team(Base):
@@ -23,3 +24,8 @@ class Team(Base):
     )
 
     division: Mapped["Division"] = relationship("Division", back_populates="teams")
+    player_character: Mapped["PlayerCharacter | None"] = relationship(
+        "PlayerCharacter",
+        back_populates="team",
+        uselist=False,
+    )
